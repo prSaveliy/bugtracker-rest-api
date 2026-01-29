@@ -6,7 +6,7 @@ import { Server } from "./server.js";
 type Route = {
   method: string,
   url: RegExp,
-  handler: (context: Server, urlItem: string, req: IncomingMessage) => Promise<Response>
+  handler: (context: Server, urlItem: string, req: IncomingMessage) => Promise<Response | void>
 };
 
 // Server types
@@ -37,5 +37,4 @@ type ServeOptions = {
   next: (res: ServerResponse) => void;
 };
 
-export { Route, PromiseResolveFunction, Bugs, ServeOptions, Headers };
-
+export { Route, PromiseResolveFunction, Bugs, ServeOptions, Headers, Response };
