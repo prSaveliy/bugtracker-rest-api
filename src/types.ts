@@ -22,6 +22,7 @@ type PromiseResolveFunction = (value: Response) => void;
 
 type BugFields = {
   id: number,
+  author: string,
   title: string,
   description: string,
   status: "open" | "in-progress" | "closed",
