@@ -1,6 +1,7 @@
 import { IncomingMessage } from "node:http";
 
-import { router, Server } from "./server.js";
+import { router } from "./router.js";
+import { Server } from "./server.js";
 
 const urlRegExp: RegExp = /^\/bugs\/(\d+)$/; 
 
@@ -42,35 +43,37 @@ router.add({
   method: "PUT", 
   url: urlRegExp, 
   handler: async (context: Server, id: string, req: IncomingMessage) => {
-  let body: any;
-  parseRequestJSON(req)
-    .then(data => {body = data})
-    .catch(err => {
+    let body: any;
+    try {
+      body = await parseRequestJSON(req);
+    } catch(err) {
+      console.log(err);
       return {
         status: 400,
         body: "Invalid JSON."
       }
-    });
-  if (
-    !body ||
-    typeof body.id !== 'number' ||
-    typeof body.title !== 'string' ||
-    typeof body.description !== 'string'
-  ) {
-    return {
-      status: 400,
-      body: "Bad bug data."
+    }
+    if (
+      !body ||
+      typeof body.author !== 'string' ||
+      typeof body.title !== 'string' ||
+      typeof body.description !== 'string'
+    ) {
+      return {
+        status: 400,
+        body: "Bad bug data."
+      };
+    }
+    context.bugs[+id] = {
+      id: +id,
+      author: body.author,
+      title: body.title,
+      description: body.description,
+      status: "open",
+      comments: []
     };
-  }
-  context.bugs[+id] = {
-    id: +id,
-    title: body.title,
-    description: body.description,
-    status: "open",
-    comments: []
-  };
-  context.updated();
-  return { status: 204 };
+    await context.updated();
+    return { status: 204 };
 } });
 
 router.add({
@@ -79,7 +82,7 @@ router.add({
   handler: async (context: Server, id: string, req: IncomingMessage) => {
   if (Object.hasOwn(context.bugs, +id)) {
     delete context.bugs[+id];
-    context.updated();
+    await context.updated();
   }
   return { status: 204 };
 } });
@@ -89,18 +92,18 @@ router.add({
   url: /^\/bugs\/(\d+)\/comments/, 
   handler: async (context: Server, id: string, req: IncomingMessage) => {
     let commentData: any;
-    parseRequestJSON(req)
-      .then(data => {commentData = data})
-      .catch(err => {
-        return {
-          status: 400,
-          body: "Invalid JSON."
-        }
-      })
+    try {
+      commentData = await parseRequestJSON(req);
+    } catch {
+      return {
+        status: 400,
+        body: "Invalid JSON."
+      }
+    }
     if (
       !commentData ||
-      commentData.author !== 'string' ||
-      commentData.message !== 'string'
+      typeof commentData.author !== 'string' ||
+      typeof commentData.message !== 'string'
     ) {
       return {
         status: 400,
@@ -112,7 +115,7 @@ router.add({
       if (context.bugs[+id].status === "open") {
         context.bugs[+id].status = "in-progress";
       }
-      context.updated();
+      await context.updated();
       return { status: 204 };
     } else {
       return {

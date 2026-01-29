@@ -2,7 +2,7 @@ import { IncomingMessage } from "node:http";
 
 import type { Route } from "./types.js"
 
-import { Server } from "./server.js";
+import type { Server } from "./server.js";
 
 export class Router {
   public routes: Route[] = []
@@ -22,3 +22,5 @@ export class Router {
     }
   }
 }
+
+export const router = new Router();
