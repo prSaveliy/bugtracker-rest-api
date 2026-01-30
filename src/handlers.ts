@@ -108,25 +108,3 @@ router.add({
       };
     }
 } });
-
-router.add({ 
-  method: "GET", 
-  url: /^\/bugs$/, 
-  handler: async (context: Server, id: string, req: IncomingMessage) => {
-    let version;
-    let wait;
-    if (req.headers["if-none-match"]) {
-      version = /"(.*)"/.exec(req.headers["if-none-match"]);
-    }
-    if (req.headers["prefer"] && typeof req.headers["prefer"] === 'string') {
-      wait = /\bwait=(\d+)/.exec(req.headers["prefer"])
-    }
-
-    if (!version || +version[1] !== context.version) {
-      return context.getBugs();
-    } else if (!wait) {
-      return { status: 304 };
-    } else {
-      return context.waitForChanges(+wait[1]);
-    }
-} });

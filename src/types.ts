@@ -18,8 +18,6 @@ type Response = {
   headers?: Headers
 };
 
-type PromiseResolveFunction = (value: Response) => void;
-
 type BugFields = {
   id: number,
   author: string,
@@ -49,4 +47,7 @@ type CommentData = {
   message: string
 };
 
-export { Route, PromiseResolveFunction, Bugs, ServeOptions, Headers, Response, BugData, CommentData};
+type WSMessage = { type: "init", version: number, bugs: BugFields[] } |
+                 { type: "update", version: number, bugs: BugFields[] }
+
+export { Route, Bugs, ServeOptions, Headers, Response, BugData, CommentData, WSMessage };

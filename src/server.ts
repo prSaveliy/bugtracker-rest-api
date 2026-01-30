@@ -1,18 +1,19 @@
 import { createServer, IncomingMessage, ServerResponse } from "node:http";
 
-import type { PromiseResolveFunction, Bugs, ServeOptions, Headers, Response } from "./types.js";
+import { WebSocketServer, WebSocket } from "ws";
+
+import type { Bugs, ServeOptions, Headers, WSMessage } from "./types.js";
 import { router } from "./router.js";
 import { dumpData, loadData } from "./handleData.js";
 import "./handlers.js";
 
 export class Server {
   public version: number;
-  public waiting: PromiseResolveFunction[];
   private server;
+  public wss: WebSocketServer;
 
   constructor(public bugs: Bugs) {
     this.version = 0;
-    this.waiting = [];
 
     this.server = createServer((req: IncomingMessage, res: ServerResponse) => {
       const serveParams: ServeOptions = {
@@ -23,19 +24,52 @@ export class Server {
       };
       serveFromRouter(serveParams);
     })
+
+    this.wss = new WebSocketServer({
+      server: this.server,
+      path: "/bugs"
+    });
+
+    this.wss.on("connection", ws => {
+      console.log("ws connected");
+
+      const response: WSMessage = {
+        type: "init",
+        version: this.version,
+        bugs: Object.values(this.bugs)
+      };
+
+      ws.send(JSON.stringify(response));
+
+      ws.on("close", () => {
+        console.log("ws disconnected");
+      })
+    });
   }
 
-  start(port: number) {
+  start(port: number): void {
     this.server.listen(port, () => {
       console.log(`Listening on port ${port}`);
-    })
+    });
   }
 
-  getBugs(): Response {
-    return {};
+  async updated() {
+    this.version++;
+
+    const response: WSMessage = {
+      type: "update",
+      version: this.version,
+      bugs: Object.values(this.bugs)
+    }
+
+    this.wss.clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify(response));
+      }
+    })
+
+    await dumpData(this.bugs);
   }
-  waitForChanges(wait: number) {}
-  async updated() {}
 }
 
 function notFound(res: ServerResponse) {
@@ -59,38 +93,7 @@ async function serveFromRouter({ context, req, res, next }: ServeOptions) {
     res.writeHead(status, headers);
     res.end(body);
   }
-}
-
-Server.prototype.getBugs = function () {
-  const bugs = Object.keys(this.bugs).map(id => this.bugs[+id]);
-  return {
-    body: JSON.stringify(bugs),
-    headers: {
-      "Content-Type": "application/json",
-      "ETag": `${this.version}`,
-      "Cache-Control": "no-store"
-    }
-  };
-};
-
-Server.prototype.waitForChanges = function(wait: number): Promise<any> {
-  return new Promise(resolve => {
-    this.waiting.push(resolve);
-    setTimeout(() => {
-      if (!this.waiting.includes(resolve)) return;
-      this.waiting = this.waiting.filter(rslv => rslv !== resolve);
-      resolve({ status: 304 });
-    }, 1000 * wait);
-  });
-};
-
-Server.prototype.updated = async function() {
-  this.version++;
-  const bugs = this.getBugs();
-  this.waiting.forEach(resolve => resolve(bugs));
-  this.waiting = [];
-  await dumpData(this.bugs);
-};
+} 
 
 (async () => {
   const bugs = await loadData();
