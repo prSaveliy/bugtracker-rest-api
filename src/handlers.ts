@@ -2,6 +2,9 @@ import { IncomingMessage } from "node:http";
 
 import { router } from "./router.js";
 import { Server } from "./server.js";
+import { validateBug, validateComment } from "./validation.js";
+
+import type { BugData, CommentData } from "./types.js";
 
 const urlRegExp: RegExp = /^\/bugs\/(\d+)$/; 
 
@@ -24,7 +27,7 @@ router.add({
   }
 } });
 
-async function parseRequestJSON(req: IncomingMessage): Promise<any> {
+async function parseRequestJSON<T>(req: IncomingMessage): Promise<T> {
   return new Promise((resolve, reject) => {
     let body = "";
     req.on("data", chunk => body += chunk);
@@ -43,9 +46,9 @@ router.add({
   method: "PUT", 
   url: urlRegExp, 
   handler: async (context: Server, id: string, req: IncomingMessage) => {
-    let body: any;
+    let body: BugData;
     try {
-      body = await parseRequestJSON(req);
+      body = await parseRequestJSON<BugData>(req);
     } catch(err) {
       console.log(err);
       return {
@@ -53,17 +56,7 @@ router.add({
         body: "Invalid JSON."
       }
     }
-    if (
-      !body ||
-      typeof body.author !== 'string' ||
-      typeof body.title !== 'string' ||
-      typeof body.description !== 'string'
-    ) {
-      return {
-        status: 400,
-        body: "Bad bug data."
-      };
-    }
+    validateBug(body);
     context.bugs[+id] = {
       id: +id,
       author: body.author,
@@ -91,25 +84,16 @@ router.add({
   method: "POST", 
   url: /^\/bugs\/(\d+)\/comments/, 
   handler: async (context: Server, id: string, req: IncomingMessage) => {
-    let commentData: any;
+    let commentData: CommentData;
     try {
-      commentData = await parseRequestJSON(req);
+      commentData = await parseRequestJSON<CommentData>(req);
     } catch {
       return {
         status: 400,
         body: "Invalid JSON."
       }
     }
-    if (
-      !commentData ||
-      typeof commentData.author !== 'string' ||
-      typeof commentData.message !== 'string'
-    ) {
-      return {
-        status: 400,
-        body: "Bad comment data."
-      }
-    }
+    validateComment(commentData);
     if (Object.hasOwn(context.bugs, +id)) {
       context.bugs[+id].comments.push(commentData);
       if (context.bugs[+id].status === "open") {

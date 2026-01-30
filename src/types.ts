@@ -26,7 +26,7 @@ type BugFields = {
   title: string,
   description: string,
   status: "open" | "in-progress" | "closed",
-  comments: string[]
+  comments: CommentData[]
 };
 
 type Bugs = Record<number, BugFields>;
@@ -38,4 +38,15 @@ type ServeOptions = {
   next: (res: ServerResponse) => void;
 };
 
-export { Route, PromiseResolveFunction, Bugs, ServeOptions, Headers, Response };
+type BugData = {
+  author: string,
+  title: string,
+  description: string
+};
+
+type CommentData = {
+  author: string,
+  message: string
+};
+
+export { Route, PromiseResolveFunction, Bugs, ServeOptions, Headers, Response, BugData, CommentData};
