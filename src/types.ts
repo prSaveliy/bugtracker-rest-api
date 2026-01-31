@@ -50,4 +50,4 @@ type CommentData = {
 type WSMessage = { type: "init", version: number, bugs: BugFields[] } |
                  { type: "update", version: number, bugs: BugFields[] }
 
-export { Route, Bugs, ServeOptions, Headers, Response, BugData, CommentData, WSMessage };
+export type { Route, Bugs, ServeOptions, Headers, Response, BugData, CommentData, WSMessage };
