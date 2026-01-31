@@ -1,2 +1,7 @@
 node_modules
 dist
+
+src/data.json
+
+tests/testData.json
+src/temporary_tests
