@@ -3,8 +3,8 @@ import { resolve } from "node:path";
 
 import { Bugs } from "./types.js";
 
-async function dumpData(bugs: Bugs): Promise<void> {
-  const path = resolve('data.json');
+async function dumpData(bugs: Bugs, storagePath: string): Promise<void> {
+  const path = resolve(storagePath);
   try {
     const dataJSON = JSON.stringify(bugs);
     await writeFile(path, dataJSON);

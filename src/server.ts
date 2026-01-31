@@ -12,7 +12,7 @@ export class Server {
   private server;
   public wss: WebSocketServer;
 
-  constructor(public bugs: Bugs) {
+  constructor(public bugs: Bugs, private storagePath: string = 'data.json') {
     this.version = 0;
 
     this.server = createServer((req: IncomingMessage, res: ServerResponse) => {
@@ -53,6 +53,14 @@ export class Server {
     });
   }
 
+  close(): void {
+    this.server.close();
+  }
+
+  get httpServer() {
+    return this.server;
+  }
+
   async updated() {
     this.version++;
 
@@ -68,7 +76,7 @@ export class Server {
       }
     })
 
-    await dumpData(this.bugs);
+    await dumpData(this.bugs, this.storagePath);
   }
 }
 
@@ -95,7 +103,9 @@ async function serveFromRouter({ context, req, res, next }: ServeOptions) {
   }
 } 
 
-(async () => {
-  const bugs = await loadData();
-  new Server(bugs).start(8000);
-})();
+if (process.env.NODE_ENV !== 'test') {
+  (async () => {
+    const bugs = await loadData();
+    new Server(bugs).start(8000);
+  })();
+}
