@@ -8,11 +8,9 @@ function validateBug(body: any) {
     typeof body.description !== 'string' ||
     body.description.length > 1000
   ) {
-    return {
-      status: 400,
-      body: "Bad bug data."
-    };
+    return false;
   }
+  return true;
 }
 
 function validateComment(commentData: any) {
@@ -23,11 +21,9 @@ function validateComment(commentData: any) {
     typeof commentData.message !== 'string' ||
     commentData.message > 500
   ) {
-    return {
-      status: 400,
-      body: "Bad comment data."
-    }
+    return false;
   }
+  return true;
 }
 
 export { validateBug, validateComment };

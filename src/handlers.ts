@@ -56,7 +56,13 @@ router.add({
         body: "Invalid JSON."
       }
     }
-    validateBug(body);
+    const isValidated = validateBug(body);
+    if (!isValidated) {
+      return {
+        status: 400,
+        body: "Bad bug data."
+      };
+    }
     context.bugs[+id] = {
       id: +id,
       author: body.author,
@@ -93,7 +99,13 @@ router.add({
         body: "Invalid JSON."
       }
     }
-    validateComment(commentData);
+    const isValidated = validateComment(commentData);
+    if (!isValidated) {
+      return {
+        status: 400,
+        body: "Bad comment data."
+      };
+    }
     if (Object.hasOwn(context.bugs, +id)) {
       context.bugs[+id].comments.push(commentData);
       if (context.bugs[+id].status === "open") {
