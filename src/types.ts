@@ -47,7 +47,17 @@ type CommentData = {
   message: string
 };
 
-type WSMessage = { type: "init", version: number, bugs: BugFields[] } |
-                 { type: "update", version: number, bugs: BugFields[] }
+type Update = "PUT" | "DELETE" | "POST" | "PATCH";
 
-export type { Route, Bugs, ServeOptions, Headers, Response, BugData, CommentData, WSMessage };
+type WSMessage = { type: "init", updateType?: Update, version: number, bugs: Bugs } |
+                 { type: "update", updateType?: Update, version: number, bugs: Bugs }
+
+type BugsArray = {
+    [x: number]: BugFields;
+}[];
+
+type ScrollPositionObject = {
+  [id: number]: number
+}
+
+export type { Route, Bugs, BugFields, ServeOptions, Headers, Response, BugData, CommentData, WSMessage, BugsArray, Update, ScrollPositionObject };
