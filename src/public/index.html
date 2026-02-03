@@ -4,9 +4,78 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bug Tracker</title>
-  <link rel="stylesheet" href="style.css">
+  <link href="output.css" rel="stylesheet">
 </head>
 <body>
+  <div class="grid grid-cols-[1fr_auto_1fr] gap-x-6 min-h-screen">
+    <!-- 1st col -->
+    <div class="flex sticky top-2/7 h-fit justify-center">
+      <div class="flex flex-col">
+        <div class="flex mb-1 ml-1">
+          <h3 class="text-sm text-white/40 font-semibold tracking-wide status-text">Name</h3>
+        </div>
+        <div class="flex border-white/10">
+          <input
+            id="name-input"
+            type="text" 
+            placeholder="Enter name..." 
+            class="w-96 rounded-xl border border-white/10 bg-transparent px-3 py-2 text-sm text-white outline-none placeholder:text-white/30 focus:border-white/30 focus:ring-1 focus:ring-white/10 transition-all"
+          />
+          <button disabled id="save-name" class="flex items-center justify-center border border-white/10 w-16 h-10 rounded-xl ml-2">
+            <h3 class="text-sm text-white/40 font-semibold tracking-wide status-text">Save</h3>
+          </button>
+        </div>
+        <div class="flex mb-1 ml-1 mt-6">
+          <h1 class="text-2xl text-white/40 font-semibold tracking-wide status-text">
+            Upload A Bug
+          </h1>
+        </div>
+        <div class="flex mb-1 ml-1 mt-2">
+          <h3 class="text-sm text-white/40 font-semibold tracking-wide status-text">
+            Title
+          </h3>
+        </div>
+        <div class="flex border-white/10">
+          <input
+            id="title-input"
+            type="text" 
+            placeholder="Enter title..." 
+            class="w-96 h-10 rounded-xl border border-white/10 bg-transparent px-3 py-2 text-sm text-white outline-none placeholder:text-white/30 focus:border-white/30 focus:ring-1 focus:ring-white/10 transition-all"
+          />
+        </div>
+        <div class="flex mb-1 ml-1 mt-2">
+          <h3 class="text-sm text-white/40 font-semibold tracking-wide status-text">
+            Description
+          </h3>
+        </div>
+        <div class="flex border-white/10">
+          <textarea
+            id="description-input"
+            placeholder="Enter description..."
+            rows="5"
+            class="w-96 resize-none rounded-xl border border-white/10 bg-transparent px-3 py-2 text-sm text-white outline-none placeholder:text-white/30 focus:border-white/30 focus:ring-1 focus:ring-white/10 transition-all"
+          ></textarea>
+        </div>
+        <div class="flex border-white/10 mt-2">
+          <button id="upload-bug" class="flex w-16 h-10 items-center justify-center rounded-xl border border-white/10 cursor-pointer transition-colors duration-300 ease-in-out hover:bg-white/5">
+            <h3 class="text-sm text-white/40 font-semibold tracking-wide status-text">Submit</h3>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- 1st col -->
+
+    <!-- main col -->
+    <div id="main-col" class="flex flex-col justify-center h-fit mt-8">
+    </div>
+    <!-- main col -->
+
+    <!-- right col: comments -->
+    <div id="third-col" class="flex h-full justify-start mt-8">
+    </div>
+    <!-- right col: comments -->
+  </div>
+
   <script type="module" src="../../dist/public/script.js"></script>
 </body>
 </html>
