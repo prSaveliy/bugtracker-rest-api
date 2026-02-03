@@ -5,3 +5,5 @@ src/data.json
 
 tests/testData.json
 src/temporary_tests
+
+src/public/output.css
