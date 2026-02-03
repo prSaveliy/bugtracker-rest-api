@@ -19,7 +19,7 @@ function validateComment(commentData: any) {
     typeof commentData.author !== 'string' ||
     commentData.author.length > 64 ||
     typeof commentData.message !== 'string' ||
-    commentData.message > 500
+    commentData.message.length > 500
   ) {
     return false;
   }
