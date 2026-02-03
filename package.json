@@ -21,6 +21,8 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@tailwindcss/cli": "^4.1.18",
+    "tailwindcss": "^4.1.18",
     "ws": "^8.19.0"
   }
 }
