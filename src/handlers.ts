@@ -120,3 +120,22 @@ router.add({
       };
     }
 } });
+
+router.add({
+  method: "PATCH",
+  url: /^\/bugs\/(\d+)\/close/,
+  handler: async (context: Server, id: string, req: IncomingMessage) => {
+    if (Object.hasOwn(context.bugs, +id)) {
+      if (context.bugs[+id].status !== "closed") {
+        context.bugs[+id].status = "closed";
+        await context.updated("PATCH");
+        return { status: 204 };
+      }
+    } else {
+      return {
+        status: 404,
+        body: `Bug with id: ${+id} not found.`
+      };
+    }
+  }
+});

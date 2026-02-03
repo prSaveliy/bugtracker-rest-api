@@ -19,7 +19,7 @@ export class Server {
       if (req.method === "OPTIONS") {
         res.writeHead(204, {
           "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, PUT, DELETE, POST, OPTIONS",
+          "Access-Control-Allow-Methods": "GET, PUT, DELETE, POST, PATCH, OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type",
         });
         res.end();
@@ -112,7 +112,7 @@ async function serveFromRouter({ context, req, res, next }: ServeOptions) {
     const mergedHeaders = {
       ...headers,
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
     };
   res.writeHead(status, mergedHeaders);
