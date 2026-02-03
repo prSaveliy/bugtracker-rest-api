@@ -71,7 +71,7 @@ router.add({
       status: "open",
       comments: []
     };
-    await context.updated();
+    await context.updated("PUT");
     return { status: 204 };
 } });
 
@@ -81,7 +81,7 @@ router.add({
   handler: async (context: Server, id: string, req: IncomingMessage) => {
   if (Object.hasOwn(context.bugs, +id)) {
     delete context.bugs[+id];
-    await context.updated();
+    await context.updated("DELETE");
   }
   return { status: 204 };
 } });
@@ -111,7 +111,7 @@ router.add({
       if (context.bugs[+id].status === "open") {
         context.bugs[+id].status = "in-progress";
       }
-      await context.updated();
+      await context.updated("POST");
       return { status: 204 };
     } else {
       return {

@@ -2,7 +2,7 @@ import { createServer, IncomingMessage, ServerResponse } from "node:http";
 
 import { WebSocketServer, WebSocket } from "ws";
 
-import type { Bugs, ServeOptions, Headers, WSMessage } from "./types.js";
+import type { Bugs, ServeOptions, Headers, WSMessage, Update } from "./types.js";
 import { router } from "./router.js";
 import { dumpData, loadData } from "./handleData.js";
 import "./handlers.js";
@@ -16,6 +16,16 @@ export class Server {
     this.version = 0;
 
     this.server = createServer((req: IncomingMessage, res: ServerResponse) => {
+      if (req.method === "OPTIONS") {
+        res.writeHead(204, {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, PUT, DELETE, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
+        });
+        res.end();
+        return;
+      }
+
       const serveParams: ServeOptions = {
         context: this,
         req,
@@ -31,18 +41,18 @@ export class Server {
     });
 
     this.wss.on("connection", ws => {
-      console.log("ws connected");
+      // console.log("ws connected");
 
       const response: WSMessage = {
         type: "init",
         version: this.version,
-        bugs: Object.values(this.bugs)
+        bugs: this.bugs
       };
 
       ws.send(JSON.stringify(response));
 
       ws.on("close", () => {
-        console.log("ws disconnected");
+        // console.log("ws disconnected");
       })
     });
   }
@@ -61,13 +71,14 @@ export class Server {
     return this.server;
   }
 
-  async updated() {
+  async updated(updateType: Update) {
     this.version++;
 
     const response: WSMessage = {
       type: "update",
+      updateType,
       version: this.version,
-      bugs: Object.values(this.bugs)
+      bugs: this.bugs
     }
 
     this.wss.clients.forEach(client => {
@@ -98,7 +109,13 @@ async function serveFromRouter({ context, req, res, next }: ServeOptions) {
   if (!resolved) return next(res);
   else {
     const { status = 200, body, headers = defaultHeaders } = await resolved;
-    res.writeHead(status, headers);
+    const mergedHeaders = {
+      ...headers,
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    };
+  res.writeHead(status, mergedHeaders);
     res.end(body);
   }
 } 
