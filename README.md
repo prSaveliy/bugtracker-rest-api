@@ -19,7 +19,7 @@ The project includes a minimal client-side UI with **Tailwind CSS** and live DOM
 **Clone the repository:**
 
 ```bash
-https://github.com/prSaveliy/bugtracker-rest-api.git
+git clone https://github.com/prSaveliy/bugtracker-rest-api.git
 cd bugtracker-rest-api
 ```
 
