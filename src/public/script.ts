@@ -386,7 +386,7 @@ function incrementBugID(startID: number = 1) {
   return () => startID++;
 }
 
-const incrementID = incrementBugID(6);
+const incrementID = incrementBugID(1);
 
 function uploadBugListener() {
   const uploadBugButton = document.getElementById("upload-bug");
