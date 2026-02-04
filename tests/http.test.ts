@@ -288,7 +288,7 @@ describe("Server HTTP requests", () => {
 
     test("return 405 if method is not allowed", async () => {
       const response = await request(app.httpServer)
-        .patch("/bugs/1")
+        .mkcol("/bugs/1")
         .send({})
         .set("Content-Type", "application/json");
 
