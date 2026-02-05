@@ -1,6 +1,16 @@
-import { Bugs, BugsArray, Update, WSMessage, ScrollPositionObject } from "../types.js"
+import {
+  Bugs,
+  BugsArray,
+  Update,
+  WSMessage,
+  ScrollPositionObject,
+} from "../types.js";
 
-import { bugInnerHtml, commentSectionInnerHtml, inputDivInnerHtml } from "./innerHTML.js";
+import {
+  bugInnerHtml,
+  commentSectionInnerHtml,
+  inputDivInnerHtml,
+} from "./innerHTML.js";
 
 const ws = new WebSocket("ws://localhost:8000/bugs");
 
@@ -9,7 +19,7 @@ ws.addEventListener("open", () => {
 });
 
 ws.addEventListener("message", (event) => {
-  const parsed: WSMessage = JSON.parse(event.data)
+  const parsed: WSMessage = JSON.parse(event.data);
 
   const body: Bugs = parsed.bugs;
   const type: string = parsed.type;
@@ -26,19 +36,19 @@ ws.addEventListener("message", (event) => {
   closeBugListener();
 });
 
-ws.addEventListener("close", event => {
+ws.addEventListener("close", (event) => {
   // console.log("Disconnected", event.code, event.reason)
 });
 
-ws.addEventListener('error', error => {
-  console.error('WebSocket error:', error);
+ws.addEventListener("error", (error) => {
+  console.error("WebSocket error:", error);
 });
 
 // for setting/getting the scrollPos of the comment block element
 const manipulateScrollPos = manipulateScrollPosCommentBlock({});
 
 function drawBugs(bugs: Bugs) {
-  const mainCol = document.getElementById("main-col")
+  const mainCol = document.getElementById("main-col");
   let bugsSorted: BugsArray = sortBugs(structuredClone(bugs));
   let bugElements = Array.from(document.getElementsByClassName("bug"));
   console.log(bugElements);
@@ -48,7 +58,8 @@ function drawBugs(bugs: Bugs) {
       let newBug = document.createElement("div");
       let id = Object.keys(bug)[0];
       newBug.id = id;
-      newBug.className = "grid grid-cols-[110px_auto] grid-rows-[76px_40px_100px_1fr] w-lg h-64 rounded-3xl border border-white/20 bg-grey/3 mb-6 bug"
+      newBug.className =
+        "grid grid-cols-[116px_auto] grid-rows-[76px_40px_100px_1fr] w-lg h-64 rounded-3xl border border-white/20 bg-grey/3 mb-6 bug";
       newBug.innerHTML = bugInnerHtml;
 
       if (bug[+id].status === "closed") {
@@ -102,7 +113,7 @@ function drawBugs(bugs: Bugs) {
 
 function deleteBugs() {
   let bugs = Array.from(document.getElementsByClassName("bug"));
-  bugs.forEach(bug => bug.remove());
+  bugs.forEach((bug) => bug.remove());
 }
 
 function drawCommentSection(bugId: number) {
@@ -111,9 +122,10 @@ function drawCommentSection(bugId: number) {
     let thirdCol = document.getElementById("third-col");
     commentSection = document.createElement("div");
     commentSection.id = "comment-section";
-    commentSection.className = "w-80 sticky top-2 h-[460px] rounded-3xl border border-white/20 bg-grey/3 backdrop-blur-md flex flex-col";
+    commentSection.className =
+      "w-80 sticky top-2 h-[460px] rounded-3xl border border-white/20 bg-grey/3 backdrop-blur-md flex flex-col";
     commentSection.innerHTML = commentSectionInnerHtml;
-    commentSection.setAttribute("bugId", String(bugId))
+    commentSection.setAttribute("bugId", String(bugId));
     thirdCol?.appendChild(commentSection);
     listenForCloseCommentSection();
   }
@@ -127,18 +139,26 @@ function deleteCommentSection() {
 function commentButtonsListener(bugs: Bugs) {
   let commentButtons = Array.from(document.getElementsByClassName("comments"));
   let previouslyClickedButtonId: number | null = null;
-  commentButtons.forEach(cb => {
+  commentButtons.forEach((cb) => {
     cb.addEventListener("click", () => {
       let commentSection = document.getElementById("comment-section");
       let id = Number(cb.classList[1]);
       previouslyClickedButtonId = Number(commentSection?.getAttribute("BugId"));
-      if (!previouslyClickedButtonId || id !== previouslyClickedButtonId || !commentSection) {
-
+      if (
+        !previouslyClickedButtonId ||
+        id !== previouslyClickedButtonId ||
+        !commentSection
+      ) {
         // save previous comment block's scrollPos
         if (previouslyClickedButtonId) {
-          const commentBlockDiv = document.getElementById("comment-block") as HTMLElement;
+          const commentBlockDiv = document.getElementById(
+            "comment-block",
+          ) as HTMLElement;
           const scrollTop = commentBlockDiv.scrollTop;
-          manipulateScrollPos.setScrollPos(previouslyClickedButtonId, scrollTop);
+          manipulateScrollPos.setScrollPos(
+            previouslyClickedButtonId,
+            scrollTop,
+          );
         }
 
         deleteCommentSection();
@@ -150,7 +170,9 @@ function commentButtonsListener(bugs: Bugs) {
         if (bugs[id].status !== "closed") {
           createInputDiv(commentSection, id);
         }
-        let commentBugTitle = document.getElementById("comment-section-bug-title");
+        let commentBugTitle = document.getElementById(
+          "comment-section-bug-title",
+        );
         if (commentBugTitle) {
           commentBugTitle.textContent = bugs[id].title;
         }
@@ -176,7 +198,7 @@ function listenForUpdate(bugs: Bugs, type: string, updateType: Update) {
 function drawComments(bugs: Bugs, id: number) {
   let commentBlock = document.getElementById("comment-block") as HTMLElement;
   let bug = bugs[id];
-  bug.comments.forEach(comment => {
+  bug.comments.forEach((comment) => {
     let commentDiv = document.createElement("div");
     commentDiv.className = "border border-white/10 rounded-xl p-3 comment";
 
@@ -187,7 +209,7 @@ function drawComments(bugs: Bugs, id: number) {
     let message = document.createElement("p");
     message.className = "text-sm text-white/50 font-light";
     message.textContent = comment.message;
-    
+
     commentDiv.appendChild(author);
     commentDiv.appendChild(message);
     commentBlock?.appendChild(commentDiv);
@@ -198,13 +220,13 @@ function drawComments(bugs: Bugs, id: number) {
   if (scrollTopToRestore === commentBlock.scrollHeight) {
     commentBlock.scrollTop = commentBlock.scrollHeight;
   } else {
-    commentBlock.scrollTop =  scrollTopToRestore;
+    commentBlock.scrollTop = scrollTopToRestore;
   }
 }
 
 function deleteComments() {
   let comments = Array.from(document.getElementsByClassName("comment"));
-  comments?.forEach(comment => {
+  comments?.forEach((comment) => {
     comment.remove();
   });
 }
@@ -213,7 +235,7 @@ function createInputDiv(commentSection: HTMLElement | null, id: number) {
   let inputDiv = document.createElement("div");
   inputDiv.id = "input-div";
   inputDiv.className = "flex p-4 border-t border-white/10 h-18";
-  inputDiv.setAttribute("bugId", `${id}`)
+  inputDiv.setAttribute("bugId", `${id}`);
   inputDiv.innerHTML = inputDivInnerHtml;
   commentSection?.appendChild(inputDiv);
   // let input = document.getElementById("input");
@@ -230,8 +252,9 @@ function uploadCommentListener() {
   const uploadCommentButton = document.getElementById("upload-comment");
 
   uploadCommentButton?.addEventListener("click", async (event) => {
-
-    const inputComment = document.getElementById("input-comment") as HTMLInputElement;
+    const inputComment = document.getElementById(
+      "input-comment",
+    ) as HTMLInputElement;
     if (!inputComment?.value) return;
 
     const inputDiv = document.getElementById("input-div");
@@ -239,14 +262,17 @@ function uploadCommentListener() {
 
     const name = localStorage.getItem("username");
     if (name) {
-      const response = await fetch(`http://localhost:8000/bugs/${id}/comments`, {
-        method: "POST",
-        body: JSON.stringify({
-          author: name,
-          message: inputComment.value
-        }),
-        headers: { "Content-Type": "application/json" }
-      });
+      const response = await fetch(
+        `http://localhost:8000/bugs/${id}/comments`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            author: name,
+            message: inputComment.value,
+          }),
+          headers: { "Content-Type": "application/json" },
+        },
+      );
       if (!response.ok) {
         const rawError = await response.text();
         try {
@@ -256,7 +282,7 @@ function uploadCommentListener() {
           console.log("Plain Text Error:", rawError);
         }
       }
-      inputComment.value = '';
+      inputComment.value = "";
     }
   });
 }
@@ -284,36 +310,58 @@ function sortBugs(bugs: Bugs) {
 }
 
 function listenForNameSaved() {
-  const saveNameButton = document.getElementById("save-name") as HTMLButtonElement;
+  const saveNameButton = document.getElementById(
+    "save-name",
+  ) as HTMLButtonElement;
   saveNameButton?.addEventListener("click", () => {
     const nameInput = document.getElementById("name-input") as HTMLInputElement;
     localStorage.setItem("username", nameInput.value);
     saveNameButton.disabled = true;
-    saveNameButton.classList.remove("cursor-pointer", "transition-colors", "duration-300", "ease-in-out", "hover:bg-white/5");
+    saveNameButton.classList.remove(
+      "cursor-pointer",
+      "transition-colors",
+      "duration-300",
+      "ease-in-out",
+      "hover:bg-white/5",
+    );
   });
 }
 
 function listenForNameChange() {
   const nameInput = document.getElementById("name-input") as HTMLInputElement;
-  const saveNameButton = document.getElementById("save-name") as HTMLButtonElement;
+  const saveNameButton = document.getElementById(
+    "save-name",
+  ) as HTMLButtonElement;
   nameInput.addEventListener("change", () => {
     if (nameInput.value) {
       if (saveNameButton.disabled) {
         saveNameButton.disabled = false;
-        saveNameButton.classList.add("cursor-pointer", "transition-colors", "duration-300", "ease-in-out", "hover:bg-white/5");
+        saveNameButton.classList.add(
+          "cursor-pointer",
+          "transition-colors",
+          "duration-300",
+          "ease-in-out",
+          "hover:bg-white/5",
+        );
       }
     } else {
       if (!saveNameButton.disabled) {
         saveNameButton.disabled = true;
-        saveNameButton.classList.remove("cursor-pointer", "transition-colors", "duration-300", "ease-in-out", "hover:bg-white/5");
+        saveNameButton.classList.remove(
+          "cursor-pointer",
+          "transition-colors",
+          "duration-300",
+          "ease-in-out",
+          "hover:bg-white/5",
+        );
       }
     }
-  })
+  });
 }
 
 function getNameFromStorage() {
   const nameInput = document.getElementById("name-input") as HTMLInputElement;
-  nameInput.value = localStorage.getItem("username") ?? '';
+  nameInput.value = localStorage.getItem("username") ?? "";
 }
 
 function handleUpdateType(updateType: Update) {
@@ -329,20 +377,26 @@ function handleUpdateType(updateType: Update) {
 }
 
 function listenForCloseCommentSection() {
-  const closeCommentSectionButton = document.getElementById("close-comment-section");
+  const closeCommentSectionButton = document.getElementById(
+    "close-comment-section",
+  );
   closeCommentSectionButton?.addEventListener("click", () => {
-  const commentSection = document.getElementById("comment-section");
-  const commentBlockDiv = document.getElementById("comment-block") as HTMLElement;
+    const commentSection = document.getElementById("comment-section");
+    const commentBlockDiv = document.getElementById(
+      "comment-block",
+    ) as HTMLElement;
 
-  const scrollTop = commentBlockDiv.scrollTop;
-  const id = Number(commentSection?.getAttribute("BugId"));
-  manipulateScrollPos.setScrollPos(id, scrollTop);
+    const scrollTop = commentBlockDiv.scrollTop;
+    const id = Number(commentSection?.getAttribute("BugId"));
+    manipulateScrollPos.setScrollPos(id, scrollTop);
 
-  deleteCommentSection();
+    deleteCommentSection();
   });
 }
 
-function manipulateScrollPosCommentBlock(scrollPositions: ScrollPositionObject) {
+function manipulateScrollPosCommentBlock(
+  scrollPositions: ScrollPositionObject,
+) {
   return {
     getScrollPos(id: number) {
       // console.log(`Getting id(${id}): `, scrollPositions);
@@ -352,26 +406,31 @@ function manipulateScrollPosCommentBlock(scrollPositions: ScrollPositionObject) 
     setScrollPos(id: number, scrollPos: number) {
       scrollPositions[id] = scrollPos;
       // console.log(`Setting id(${id}): `, scrollPositions);
-    }
-  }
+    },
+  };
 }
 
 function closeBugListener() {
-  const closeBugbuttons = Array.from(document.getElementsByClassName("close-bug"));
+  const closeBugbuttons = Array.from(
+    document.getElementsByClassName("close-bug"),
+  );
 
-  closeBugbuttons.forEach(cbb => {
+  closeBugbuttons.forEach((cbb) => {
     cbb.addEventListener("click", async () => {
       const id = cbb.getAttribute("BugId");
       if (id) {
-        const response = await fetch(`http://localhost:8000/bugs/${+id}/close`, {
-          method: "PATCH"
-        });
+        const response = await fetch(
+          `http://localhost:8000/bugs/${+id}/close`,
+          {
+            method: "PATCH",
+          },
+        );
         if (!response.ok) {
           const rawError = await response.text();
           console.log(rawError);
         }
 
-        const commentSection =  document.getElementById("comment-section");
+        const commentSection = document.getElementById("comment-section");
         if (commentSection) {
           if (commentSection.getAttribute("BugId") === id) {
             deleteInputDiv();
@@ -379,7 +438,7 @@ function closeBugListener() {
         }
       }
     });
-  })
+  });
 }
 
 function incrementBugID(startID: number = 1) {
@@ -392,8 +451,12 @@ function uploadBugListener() {
   const uploadBugButton = document.getElementById("upload-bug");
 
   uploadBugButton?.addEventListener("click", async () => {
-    const titleInput = document.getElementById("title-input") as HTMLInputElement | null;
-    const descriptionInput = document.getElementById("description-input") as HTMLInputElement | null;
+    const titleInput = document.getElementById(
+      "title-input",
+    ) as HTMLInputElement | null;
+    const descriptionInput = document.getElementById(
+      "description-input",
+    ) as HTMLInputElement | null;
 
     const title = titleInput?.value;
     const description = descriptionInput?.value;
@@ -404,7 +467,7 @@ function uploadBugListener() {
     const body = JSON.stringify({
       author: name,
       title,
-      description
+      description,
     });
 
     if (title && description && name) {
@@ -412,8 +475,8 @@ function uploadBugListener() {
         method: "PUT",
         body,
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       });
       if (!response.ok) {
         const rawError = await response.text();
@@ -426,10 +489,10 @@ function uploadBugListener() {
       } else {
         uploadBugButton.removeEventListener("click", () => {});
       }
-      titleInput.value = '';
-      descriptionInput.value = '';
+      titleInput.value = "";
+      descriptionInput.value = "";
     }
-  })
+  });
 }
 
 uploadBugListener();
